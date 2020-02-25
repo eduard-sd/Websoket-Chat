@@ -1,0 +1,71 @@
+.form-signin {
+    width: 100%;
+    max-width: 380px;
+    padding: 15px;
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.form-signin>label {
+    flex: 1 0 50%;
+}
+
+.form-signin>div {
+    flex: 0 1 100%;
+}
+
+#option1,
+#option2 {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+}
+
+#tab-content-1,
+#tab-content-2 {
+    display: none;
+}
+
+
+
+#option1:checked ~ .btn--option1 {
+    box-shadow: 0 0 0 0.2rem #BFD5E2;
+    background-color: #424b53;
+}
+
+#option2:checked ~ .btn--option2{
+    box-shadow: 0 0 0 0.2rem #BFD5E2;
+    background-color: #424b53;
+}
+
+#option1:checked ~ #tab-content-1 {
+    display: block;
+}
+#option1:checked ~ #tab-content-2 {
+    display: none;
+}
+
+#option2:checked ~ #tab-content-1  {
+    display: none;
+}
+#option2:checked ~ #tab-content-2  {
+    display: block;
+}
+
+
+#subscribe {
+    width: 100%;
+    height: 300px;
+    overflow: auto;
+    border: 1px solid black;
+}
+
+.text-message {
+    height: 100px;
+    overflow-y: auto;
+    resize: none;
+}

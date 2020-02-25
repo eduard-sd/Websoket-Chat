@@ -1,0 +1,21 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "WebSocket chat base on MySQL database",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.5",
+    "ws": "^7.2.1"
+  },
+  "devDependencies": {
+    "node-static": "^0.7.11",
+    "nodemon": "^2.0.2"
+  },
+  "scripts": {
+    "start": "nodemon src/js/server.js"
+  },
+  "author": "Eduard Sayakhov <pr-spektr@yandex.ru>",
+  "license": "MIT"
+}
