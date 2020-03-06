@@ -5,6 +5,7 @@
     margin: auto;
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 
@@ -42,6 +43,10 @@
     background-color: #424b53;
 }
 
+#tab-content-1 {
+    display: block;
+}
+
 #option1:checked ~ #tab-content-1 {
     display: block;
 }
@@ -68,4 +73,8 @@
     height: 100px;
     overflow-y: auto;
     resize: none;
+}
+
+.btn-secondary {
+    max-width: 150px;
 }

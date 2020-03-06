@@ -1,7 +1,7 @@
 require('dotenv').config();
 let Sequelize  = require('sequelize');
 
-const sequelize = new Sequelize(`chat`, `${process.env.DB_USER}`, `${process.env.DB_PASS}`, {
+const sequelize = new Sequelize("chat", `${process.env.DB_USER}`, `${process.env.DB_PASS}`, {
     dialect: 'mysql',
     host: `${process.env.DB_HOST}`,
     port: "3306",
@@ -11,7 +11,15 @@ const sequelize = new Sequelize(`chat`, `${process.env.DB_USER}`, `${process.env
     }
 });
 
-const Users = sequelize.define("Users",{
+sequelize.authenticate()
+    .then(() => {
+        console.log('Connection has been established successfully.');
+    })
+    .catch(err => {
+        console.error('Unable to connect to the database:', err);
+    });
+
+const Users = sequelize.define("Users", {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -37,7 +45,7 @@ const Users = sequelize.define("Users",{
     }
 });
 
-export const Chat = sequelize.define("Chat",{
+const ChatHistory = sequelize.define("ChatHistory",{
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -55,7 +63,14 @@ export const Chat = sequelize.define("Chat",{
     }
 });
 
-Chat.hasOne(Users, { foreignKey: 'id', foreignKeyConstraint: true });
+Users.hasMany(ChatHistory, { foreignKey: 'id', foreignKeyConstraint: true });
 
-sequelize.sync();
+sequelize.sync({ force: true })
+    .then(() => {
+        console.log(`Database & tables created!`)
+    });
 
+module.exports = {
+    Users,
+    ChatHistory
+};
