@@ -9,8 +9,8 @@ const { Users, Blog, Tag } = require('./databaseConnectORM')
 var clients = [];
 
 var data = {
-  registration : false,
-  access : false
+  registration : '', //'', created, already_exist
+  access : '' // false, true
 };
 
 // WebSocket-сервер на порту 8081
@@ -70,36 +70,43 @@ webSocketServer.on('connection', function(ws) {
             ws,
             resName
           });
+          data.registration = '';
+          data.access = true;
+          console.log(JSON.stringify(data));
+          ws.send(JSON.stringify(data));
         } else{
+          data.registration = '';
+          data.access = false;
           console.log(JSON.stringify(data));
           ws.send(JSON.stringify(data));
         }
       })
 
     } else if (params.type  === "registration") {
-      console.log(params.date)
-      // var date = params.date.getDate()
 
-      Users.create({
-        email:`${params.email}`,
-        password:`${params.password}`,
-        name: `${params.name}`,
-        status: `${params.status}`
-      }).then(res => {
-        if(res) {
-          console.log('created');
-        } else{
-          console.log('not');
-        }
-      })
+        Users.create({
+          email:`${params.email}`,
+          password:`${params.password}`,
+          name: `${params.name}`,
+          status: `${params.status}`
+        }).then(res => {
+          if (res) {
+            data.access = '';
+            data.registration = 'created';
+            console.log(JSON.stringify(data));
+            ws.send(JSON.stringify(data));
+          }
+
+        }).catch(() => {
+          data.access = '';
+          data.registration = 'already_exist';
+          console.log(JSON.stringify(data));
+          ws.send(JSON.stringify(data));
+        })
     } else if (params.type  === "text") {
 
     } else if (params.type  === "text") {
 
-    }
-    //разослать по клиентам
-    for(var key in clients) {
-      clients[key].send(message);
     }
   });
 

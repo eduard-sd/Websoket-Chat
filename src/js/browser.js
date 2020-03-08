@@ -2,41 +2,71 @@ if (!window.WebSocket) {
 	document.body.innerHTML = 'WebSocket в этом браузере не поддерживается.';
 }
 
-function authorization () {
-  var email = document.getElementById("inputEmail");
-  var password = document.getElementById("inputPassword");
-  var authorization = {
-    type: "authorization",
-    email: email.value,
-    password: password.value,
-    date: new Date()
-  };
-  return authorization;
-}
 
-function registration () {
-  var email = document.getElementById("inputEmailRegistration");
-  var name = document.getElementById("inputLoginRegistration");
-  var password = document.getElementById("inputPasswordRegistration");
-  var password2 = document.getElementById("inputPasswordRegistration2");
-  if(password.value !== password2.value) {
-    console.log("Пароли не совпадают");
-    password2.classList.add('is-invalid');
-    return false
+var containerChat = document.querySelector(".container__chat");
+var formSingIn = document.querySelector(".form-signin");
+var email = document.getElementById("inputEmailRegistration");
+var loginName = document.getElementById("inputLoginRegistration");
+var password = document.getElementById("inputPasswordRegistration");
+var password2 = document.getElementById("inputPasswordRegistration2");
+
+var inputFields = document.querySelectorAll('#tab-content-2 input');
+
+inputFields.forEach(x => {
+  x.addEventListener('change', validate)
+});
+
+function validate() {
+  function invalid (target) {
+    target.classList.remove('is-valid');
+    target.classList.add('is-invalid');
+  }
+  function valid (target) {
+    target.classList.remove('is-invalid');
+    target.classList.add('is-valid');
+  }
+  function empty (target) {
+    target.classList.remove('is-invalid');
+    target.classList.remove('is-valid');
+  }
+
+  if (password.value.length > 1 && password.value !== password2.value ||
+      password.value.length > 1 && password.value.length < 3) {
+    invalid(password);
+    invalid(password2);
+  } else if(password.value.length > 1) {
+    valid(password);
+    valid(password2);
+  } else {
+    empty(password);
+    empty(password2);
+  }
+
+  if (password.value.length > 1 && email.value.indexOf("@") < 1) {
+    invalid(email);
+  } else if(email.value.length > 1) {
+    valid(email);
+  } else {
+    empty(email);
   }
 
 
-  var registration = {
-    type: "registration",
-    email: email.value,
-    name: name.value,
-    password: password.value,
-    status: true
-  };
-  return registration;
+  if (password.value.length > 1 && loginName.value.length < 2) {
+    invalid(loginName);
+  } else if(loginName.value.length > 1) {
+    valid(loginName);
+  } else {
+    empty(loginName);
+  }
+
+
+  if (password.value === password2.value || password.value.length > 2 &&
+      loginName.value.length > 1 &&
+      email.value.indexOf("@") > 0
+  ) {
+    return true
+  }
 }
-
-
 
 // var chatMessage = {
 //     id,
@@ -50,17 +80,38 @@ var socket = new WebSocket("ws://localhost:8081");
 
 var loginButton = document.querySelector("#tab-content-1 button");
 loginButton.onclick = () => {
-  console.log(JSON.stringify(authorization()));
-  socket.send(JSON.stringify(authorization()));
+  var email = document.getElementById("inputEmail");
+  var password = document.getElementById("inputPassword");
+  var authorization = {
+    type: "authorization",
+    email: email.value,
+    password: password.value,
+    date: new Date()
+  };
+
+  console.log(JSON.stringify(authorization));
+  socket.send(JSON.stringify(authorization));
 };
+
+
+
 
 var registrationButton = document.querySelector("#tab-content-2 button");
 registrationButton.onclick = () => {
-  if (registration() === false) {
-    alert("Пароли не совпадают")
+
+  if (validate() === true) {
+    var registration = {
+      type: "registration",
+      email: email.value,
+      name: loginName.value,
+      password: password.value,
+      status: true
+    };
+    console.log(JSON.stringify(registration));
+    socket.send(JSON.stringify(registration));
+    inputFields.forEach(x => x.value = '')
+    validate();
   }
-  console.log(JSON.stringify(registration()));
-  socket.send(JSON.stringify(registration()));
 };
 
 
@@ -77,10 +128,18 @@ document.forms.publish.onsubmit = function() {
 // обработчик входящих сообщений
 socket.onmessage = function(event) {
   var data = JSON.parse(event.data);
+
   if (data.access === false) {
     alert("пароль и логин не верный")
-  } else if (data.registration === false) {
-    alert("пароль и логин не верный")
+  } else if (data.access === true) {
+    formSingIn.classList.remove('form-signin--visible');
+    containerChat.classList.add('container__chat--visible');
+  } else if (data.registration === 'created') {
+    alert("Аккаунт создан");
+    document.getElementById('option1').checked = true;
+  } else if (data.registration === 'already_exist') {
+    alert("Аккаунт уже существует")
+    document.getElementById('option1').checked = true;
   }
 
 

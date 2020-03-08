@@ -1,4 +1,8 @@
 .form-signin {
+    display: none;
+}
+
+.form-signin--visible {
     width: 100%;
     max-width: 380px;
     padding: 15px;
@@ -78,3 +82,16 @@
 .btn-secondary {
     max-width: 150px;
 }
+
+.container .container__chat {
+    display: none;
+}
+
+.container .container__chat--visible {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+    justify-content: center!important;
+}
+
