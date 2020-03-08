@@ -1,20 +1,30 @@
-var http = require('http');
-var Static = require('node-static');
-var WebSocket = new require('ws');
+let http = require('http');
+let Static = require('node-static');
+let WebSocket = new require('ws');
 
 const { Users, Blog, Tag } = require('./databaseConnectORM')
 
 // подключенные клиенты
 
-var clients = [];
+let clients = [];
 
-var data = {
+// function data() {
+//   return {
+//     registration : '', //'', created, already_exist
+//     access : '', // false, true
+//     text: ''
+//   };
+// }
+
+let data = {
   registration : '', //'', created, already_exist
-  access : '' // false, true
+  access : '', // false, true
+  text: ''
 };
 
+
 // WebSocket-сервер на порту 8081
-var webSocketServer = new WebSocket.Server({port: 8081});
+let webSocketServer = new WebSocket.Server({port: 8081});
 
 webSocketServer.on('connection', function(ws) {
 
@@ -24,19 +34,34 @@ webSocketServer.on('connection', function(ws) {
   // ws.on('message', function(message) {
   //   console.log('получено сообщение ' + message);
   //   //разослать по клиентам
-  //   for(var key in clients) {
+  //   for(let key in clients) {
   //     clients[key].send(message);
   //   }
   // });
-  //
-  ws.on('close', function() {
+
+  function disconect () {
+    let id;
     for (let i = 0; i < clients.length; i++) {
       if(clients[i].ws === ws) {
-        clients.forEach(x => x.ws.send(clients[i].resName + " покинул чат"));
+
+        id = clients[i].id;
+
+        data.registration = '';
+        data.access = '';
+        data.text = clients[i].resName + " покинул чат";
+
+        console.log(JSON.stringify(data));
+        clients.forEach(x => x.ws.send(JSON.stringify(data)));
         console.log('соединение закрыто ' + clients[i].resId);
+
         delete clients[i];
       }
     }
+    return id;
+  }
+
+  ws.on('close', function() {
+    disconect ()
   });
 
   // ws.on('open', function(message) {
@@ -45,14 +70,14 @@ webSocketServer.on('connection', function(ws) {
   //
   //
   //   //разослать по клиентам
-  //   for(var key in clients) {
+  //   for(let key in clients) {
   //     clients[key].send(message);
   //   }
   // });
 
   ws.on('message', function(message) {
     console.log('получено сообщение ' + message);
-    var params = JSON.parse(message);
+    let params = JSON.parse(message);
     if (params.type === "authorization") {
       // проверка есть ли пользователь в базе
 
@@ -63,8 +88,8 @@ webSocketServer.on('connection', function(ws) {
         }
       }).then(res => {
         if(res.length){
-          var resId = res[0].dataValues.id;
-          var resName = res[0].dataValues.name;
+          let resId = res[0].dataValues.id;
+          let resName = res[0].dataValues.name;
           clients.push({
             resId,
             ws,
@@ -103,8 +128,19 @@ webSocketServer.on('connection', function(ws) {
           console.log(JSON.stringify(data));
           ws.send(JSON.stringify(data));
         })
-    } else if (params.type  === "text") {
+    } else if (params.type  === "exit") {
+      let id = disconect ();
 
+      console.log( id );
+      Users.update({
+        status: `${params.status}`
+      },{
+        where: {id}
+      }).then(res => {
+        console.log(res);
+      }).catch((e) => {
+        console.log(e);
+      })
     } else if (params.type  === "text") {
 
     }
@@ -117,7 +153,7 @@ webSocketServer.on('connection', function(ws) {
 
 
 // обычный сервер (статика) на порту 8080
-var fileServer = new Static.Server('.');
+let fileServer = new Static.Server('.');
 
 http.createServer(function (req, res) {
   fileServer.serve(req, res);

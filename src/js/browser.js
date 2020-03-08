@@ -3,14 +3,18 @@ if (!window.WebSocket) {
 }
 
 
-var containerChat = document.querySelector(".container__chat");
-var formSingIn = document.querySelector(".form-signin");
-var email = document.getElementById("inputEmailRegistration");
-var loginName = document.getElementById("inputLoginRegistration");
-var password = document.getElementById("inputPasswordRegistration");
-var password2 = document.getElementById("inputPasswordRegistration2");
+const containerChat = document.querySelector(".container__chat");
+const formSingIn = document.querySelector(".form-signin");
+const email = document.getElementById("inputEmailRegistration");
+const loginName = document.getElementById("inputLoginRegistration");
+const password = document.getElementById("inputPasswordRegistration");
+const password2 = document.getElementById("inputPasswordRegistration2");
 
-var inputFields = document.querySelectorAll('#tab-content-2 input');
+const inputFields = document.querySelectorAll('#tab-content-2 input');
+const exitBtn = document.querySelector('.btn--exit');
+const editBtn = document.querySelector('.btn--edit');
+const btnSave = document.querySelector('.btn--save');
+const profileEdit = document.querySelector('.profile-edit');
 
 inputFields.forEach(x => {
   x.addEventListener('change', validate)
@@ -68,7 +72,7 @@ function validate() {
   }
 }
 
-// var chatMessage = {
+// let chatMessage = {
 //     id,
 //     type: "text",
 //     text: document.getElementById("text").value,//edit get element
@@ -76,13 +80,13 @@ function validate() {
 // };
 
 // создать подключение
-var socket = new WebSocket("ws://localhost:8081");
+let socket = new WebSocket("ws://localhost:8081");
 
-var loginButton = document.querySelector("#tab-content-1 button");
+let loginButton = document.querySelector("#tab-content-1 button");
 loginButton.onclick = () => {
-  var email = document.getElementById("inputEmail");
-  var password = document.getElementById("inputPassword");
-  var authorization = {
+  let email = document.getElementById("inputEmail");
+  let password = document.getElementById("inputPassword");
+  let authorization = {
     type: "authorization",
     email: email.value,
     password: password.value,
@@ -93,14 +97,34 @@ loginButton.onclick = () => {
   socket.send(JSON.stringify(authorization));
 };
 
+exitBtn.onclick = () => {
+  // formSingIn.classList.add('form-signin--visible');
+  // containerChat.classList.remove('container__chat--visible');
+  let exit = {
+    type: "exit",
+    date: new Date(),
+    status: false
+  };
+  console.log(JSON.stringify(exit));
+  socket.send(JSON.stringify(exit));
+};
+
+editBtn.onclick = () => {
+  profileEdit.classList.add('profile-edit--visible');
+  editBtn.classList.add('btn--invisible');
+};
+
+btnSave.onclick = () => {
+  profileEdit.classList.remove('profile-edit--visible');
+  editBtn.classList.remove('btn--invisible');
+};
 
 
-
-var registrationButton = document.querySelector("#tab-content-2 button");
+let registrationButton = document.querySelector("#tab-content-2 button");
 registrationButton.onclick = () => {
 
   if (validate() === true) {
-    var registration = {
+    let registration = {
       type: "registration",
       email: email.value,
       name: loginName.value,
@@ -119,7 +143,7 @@ registrationButton.onclick = () => {
 
 // отправить сообщение из формы publish
 document.forms.publish.onsubmit = function() {
-  var outgoingMessage = this.message.value;
+  let outgoingMessage = this.message.value;
   console.log('outgoingMessage');
   socket.send(outgoingMessage);
   return false;
@@ -127,7 +151,7 @@ document.forms.publish.onsubmit = function() {
 
 // обработчик входящих сообщений
 socket.onmessage = function(event) {
-  var data = JSON.parse(event.data);
+  let data = JSON.parse(event.data);
 
   if (data.access === false) {
     alert("пароль и логин не верный")
@@ -140,17 +164,16 @@ socket.onmessage = function(event) {
   } else if (data.registration === 'already_exist') {
     alert("Аккаунт уже существует")
     document.getElementById('option1').checked = true;
+  } else if (data.text.length > 0) {
+    let incomingMessage = event.data;
+    showMessage(incomingMessage);
   }
-
-
-  var incomingMessage = event.data;
-  showMessage(incomingMessage);
 };
 
 // показать сообщение в div#subscribe
 function showMessage(message) {
 
-  var messageElem = document.createElement('div');
+  let messageElem = document.createElement('div');
   messageElem.appendChild(document.createTextNode(message));
   document.getElementById('subscribe').appendChild(messageElem);
 

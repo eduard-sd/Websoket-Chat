@@ -79,11 +79,13 @@
     resize: none;
 }
 
-.btn-secondary {
-    max-width: 150px;
+.btn.btn-lg{
+    padding: 6px 12px;
 }
 
-.container .container__chat {
+.container .container__chat,
+.profile-edit,
+.btn--invisible {
     display: none;
 }
 
@@ -95,3 +97,7 @@
     justify-content: center!important;
 }
 
+
+.profile-edit--visible {
+    display: block;
+}
