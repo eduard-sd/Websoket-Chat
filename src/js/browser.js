@@ -9,11 +9,7 @@ const email = document.getElementById("inputEmailRegistration");
 const loginName = document.getElementById("inputLoginRegistration");
 const password = document.getElementById("inputPasswordRegistration");
 const password2 = document.getElementById("inputPasswordRegistration2");
-
 const inputFields = document.querySelectorAll('#tab-content-2 input');
-const exitBtn = document.querySelector('.btn--exit');
-const editBtn = document.querySelector('.btn--edit');
-const btnSave = document.querySelector('.btn--save');
 const profileEdit = document.querySelector('.profile-edit');
 
 inputFields.forEach(x => {
@@ -72,18 +68,11 @@ function validate() {
   }
 }
 
-// let chatMessage = {
-//     id,
-//     type: "text",
-//     text: document.getElementById("text").value,//edit get element
-//     date: Date.now()
-// };
-
 // создать подключение
 let socket = new WebSocket("ws://localhost:8081");
 
-let loginButton = document.querySelector("#tab-content-1 button");
-loginButton.onclick = () => {
+//авторизация
+document.querySelector("#tab-content-1 > button").onclick = () => {
   let email = document.getElementById("inputEmail");
   let password = document.getElementById("inputPassword");
   let authorization = {
@@ -92,12 +81,11 @@ loginButton.onclick = () => {
     password: password.value,
     date: new Date()
   };
-
   console.log(JSON.stringify(authorization));
   socket.send(JSON.stringify(authorization));
 };
 
-exitBtn.onclick = () => {
+document.querySelector('.btn--exit').onclick = () => {
   // formSingIn.classList.add('form-signin--visible');
   // containerChat.classList.remove('container__chat--visible');
   let exit = {
@@ -108,21 +96,17 @@ exitBtn.onclick = () => {
   console.log(JSON.stringify(exit));
   socket.send(JSON.stringify(exit));
 };
-
-editBtn.onclick = () => {
+document.querySelector('.btn--edit').onclick = () => {
   profileEdit.classList.add('profile-edit--visible');
   editBtn.classList.add('btn--invisible');
 };
-
-btnSave.onclick = () => {
+document.querySelector('.btn--save').onclick = () => {
   profileEdit.classList.remove('profile-edit--visible');
   editBtn.classList.remove('btn--invisible');
 };
 
-
-let registrationButton = document.querySelector("#tab-content-2 button");
-registrationButton.onclick = () => {
-
+//регистрация
+document.querySelector("#tab-content-2 button").onclick = () => {
   if (validate() === true) {
     let registration = {
       type: "registration",
@@ -141,12 +125,17 @@ registrationButton.onclick = () => {
 
 
 
-// отправить сообщение из формы publish
-document.forms.publish.onsubmit = function() {
-  let outgoingMessage = this.message.value;
-  console.log('outgoingMessage');
-  socket.send(outgoingMessage);
-  return false;
+// отправить сообщение из формы
+document.querySelector("#newmessage").onclick = (e) => {
+  e.preventDefault();
+  let chatMessage = {
+      type: "text",
+      text: document.querySelector('.text-message').value,//edit get element
+      date: Date.now()
+  };
+
+  console.log(JSON.stringify(chatMessage));
+  socket.send(JSON.stringify(chatMessage));
 };
 
 // обработчик входящих сообщений
@@ -162,19 +151,17 @@ socket.onmessage = function(event) {
     alert("Аккаунт создан");
     document.getElementById('option1').checked = true;
   } else if (data.registration === 'already_exist') {
-    alert("Аккаунт уже существует")
+    alert("Аккаунт уже существует");
     document.getElementById('option1').checked = true;
   } else if (data.text.length > 0) {
-    let incomingMessage = event.data;
+    let incomingMessage = data.text;
     showMessage(incomingMessage);
   }
 };
 
 // показать сообщение в div#subscribe
 function showMessage(message) {
-
   let messageElem = document.createElement('div');
   messageElem.appendChild(document.createTextNode(message));
   document.getElementById('subscribe').appendChild(messageElem);
-
 }
