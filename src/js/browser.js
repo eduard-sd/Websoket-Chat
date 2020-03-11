@@ -30,39 +30,41 @@ function validate() {
     target.classList.remove('is-valid');
   }
 
-  if (password.value.length > 1 && password.value !== password2.value ||
-      password.value.length > 1 && password.value.length < 3) {
-    invalid(password);
-    invalid(password2);
-  } else if(password.value.length > 1) {
+  if (password.value === password2.value &&
+      password.value.length > 3
+  ) {
     valid(password);
     valid(password2);
-  } else {
+  } else if (password.value.length < 1  && password2.value.length < 1) {
     empty(password);
     empty(password2);
+  } else {
+    invalid(password);
+    invalid(password2);
   }
 
-  if (password.value.length > 1 && email.value.indexOf("@") < 1) {
-    invalid(email);
-  } else if(email.value.length > 1) {
+  if (email.value.length > 5 && email.value.includes("@") === true) {
     valid(email);
-  } else {
+  } else if (email.value.length < 1) {
     empty(email);
-  }
-
-
-  if (password.value.length > 1 && loginName.value.length < 2) {
-    invalid(loginName);
-  } else if(loginName.value.length > 1) {
-    valid(loginName);
   } else {
-    empty(loginName);
+    invalid(email);
   }
 
 
-  if (password.value === password2.value || password.value.length > 2 &&
+  if(loginName.value.length > 1) {
+    valid(loginName);
+  } else if (loginName.value.length < 1) {
+    empty(loginName);
+  } else {
+    invalid(loginName);
+  }
+
+
+  if (password.value === password2.value &&
+      password.value.length > 3 &&
       loginName.value.length > 1 &&
-      email.value.indexOf("@") > 0
+      email.value.includes("@") === true
   ) {
     return true
   }
@@ -95,6 +97,9 @@ document.querySelector('.btn--exit').onclick = () => {
   };
   console.log(JSON.stringify(exit));
   socket.send(JSON.stringify(exit));
+
+  window.location.reload()//поправить
+
 };
 document.querySelector('.btn--edit').onclick = () => {
   profileEdit.classList.add('profile-edit--visible');
@@ -122,9 +127,6 @@ document.querySelector("#tab-content-2 button").onclick = () => {
   }
 };
 
-
-
-
 // отправить сообщение из формы
 document.querySelector("#newmessage").onclick = (e) => {
   e.preventDefault();
@@ -138,30 +140,56 @@ document.querySelector("#newmessage").onclick = (e) => {
   socket.send(JSON.stringify(chatMessage));
 };
 
+function formateDate (date) {
+  const d = new Date(date);
+  const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+  const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+  const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+  const hour = new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: false }).format(d);
+  const minutes = new Intl.DateTimeFormat('en', { minute: 'numeric' }).format(d);
+
+  return(`${day}.${month}.${year} - ${hour}:${minutes}`);
+}
+
 // обработчик входящих сообщений
 socket.onmessage = function(event) {
+  console.log('browser socket.onmessage = ',event);
   let data = JSON.parse(event.data);
 
   if (data.access === false) {
     alert("пароль и логин не верный")
-  } else if (data.access === true) {
+
+  } else if (data.access === true && data.message.text.length < 1) {
     formSingIn.classList.remove('form-signin--visible');
     containerChat.classList.add('container__chat--visible');
+
   } else if (data.registration === 'created') {
     alert("Аккаунт создан");
     document.getElementById('option1').checked = true;
+
   } else if (data.registration === 'already_exist') {
     alert("Аккаунт уже существует");
     document.getElementById('option1').checked = true;
-  } else if (data.text.length > 0) {
-    let incomingMessage = data.text;
-    showMessage(incomingMessage);
+
+  } else if (data.message.text.length > 0) {
+    showMessage(data.message);
   }
 };
 
 // показать сообщение в div#subscribe
 function showMessage(message) {
-  let messageElem = document.createElement('div');
-  messageElem.appendChild(document.createTextNode(message));
-  document.getElementById('subscribe').appendChild(messageElem);
+  let date = formateDate(message.date);
+  let element = `<div class="chat-box">
+                    <div class="from">
+                        <span>${message.name}</span>
+                        <span>${date}</span>
+                    </div>
+                    <div class="message">
+                        <span>${message.text}</span>
+                    </div>       
+                </div>`;
+  document.getElementById('subscribe').insertAdjacentHTML("beforeend", element)
+  // let messageElem = document.createElement('div');
+  // messageElem.appendChild(document.createTextNode(message));
+  // document.getElementById('subscribe').appendChild(messageElem);
 }

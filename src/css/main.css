@@ -101,3 +101,24 @@
 .profile-edit--visible {
     display: block;
 }
+
+.chat-box {
+    display: flex;
+    margin: 5px;
+    padding: 5px;
+    font-size: 14px;
+    line-height: 16px;
+    font-weight: normal;
+    font-family: Roboto;
+}
+.from {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+.from span:last-child {
+    font-size: 10px;
+}
+.message {
+    margin-left: 10px
+}
