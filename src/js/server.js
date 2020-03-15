@@ -136,6 +136,45 @@ webSocketServer.on('connection', function (ws) {
                 ws.send(JSON.stringify(data));
             })
 
+        } else if (params.type === "profile-edit") {
+            let index = getProfileIndex(ws);
+
+            Users.update({
+                where: {
+                    id: `${subscribers[index].id}`,
+                }
+            }).then(res => {
+                if (res.length) {
+                    let resId = res[0].dataValues.id;
+                    let resName = res[0].dataValues.name;
+                    subscribers.push({
+                        resId,
+                        ws,
+                        resName
+                    });
+
+                    let index = getProfileIndex(ws);
+                    let data = makeData(
+                        '',
+                        true,
+                        '',
+                        subscribers[index].resName,
+                        new Date()
+                    );
+                    console.log(JSON.stringify(data));
+                    ws.send(JSON.stringify(data));
+                } else {
+
+                    let data = makeData(
+                        '',
+                        false,
+                        ''
+                    );
+                    console.log(JSON.stringify(data));
+                    ws.send(JSON.stringify(data));
+                }
+            })
+
         } else if (params.type === "exit") {
             let index = getProfileIndex(ws)
             let id = subscribers[index].resId;
@@ -145,12 +184,11 @@ webSocketServer.on('connection', function (ws) {
                 where: {id}
             }).then(res => {
                 console.log('result', res);
+                disconect(index);
             }).catch((e) => {
                 console.log('error', e);
+                disconect(index);
             });
-
-            disconect(index)
-
         } else if (params.type === "text") {
             let index = getProfileIndex(ws);
             let data = makeData(

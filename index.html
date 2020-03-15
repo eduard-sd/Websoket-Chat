@@ -10,50 +10,51 @@
 <body>
 <div class="container">
     <h1 class="text-center">Чат</h1>
-    <form class="form-signin form-signin--visible">
+    <div class="form-signin form-signin--visible">
         <input type="radio" name="authorization" id="option1" autocomplete="off" checked>
         <label for="option1" class="btn btn-secondary btn--option1">Авторизация</label>
 
         <input type="radio" name="authorization" id="option2" autocomplete="off">
         <label for="option2" class="btn btn-secondary btn--option2">Регистрация</label>
 
-        <div id="tab-content-1">
+        <form id="tab-content-1">
             <label for="inputEmail" class="sr-only">Имя</label>
             <input type="email" id="inputEmail" class="form-control mb-1" placeholder="Имя" required="" autofocus="">
 
             <label for="inputPassword" class="sr-only">Пароль</label>
             <input type="password" id="inputPassword" class="form-control mb-1" placeholder="Пароль" required="">
 
-            <button class="btn btn-lg btn-primary btn-block mt-3">Войти</button>
-        </div>
-        <div id="tab-content-2">
+            <input  type="submit" class="btn btn-lg btn-primary btn-block mt-3" value="Войти">
+        </form>
+
+        <form id="tab-content-2">
             <label for="inputEmailRegistration" class="sr-only">Эл. почта</label>
-            <input type="email" id="inputEmailRegistration" class="form-control mb-1" placeholder="Эл. почта"
+            <input type="email" id="inputEmailRegistration" class="input-data input-data--email form-control mb-1" placeholder="Эл. почта"
                    required="" autofocus="">
 
             <label for="inputLoginRegistration" class="sr-only">Имя</label>
-            <input type="text" id="inputLoginRegistration" class="form-control mb-1" placeholder="Имя" required=""
+            <input type="text" id="inputLoginRegistration" class="input-data input-data--login form-control mb-1" placeholder="Имя" required=""
                    autofocus="">
 
             <label for="inputPasswordRegistration" class="sr-only">Пароль</label>
-            <input type="password" id="inputPasswordRegistration" class="form-control mb-1" placeholder="Пароль"
+            <input type="password" id="inputPasswordRegistration" class="input-data input-data--password form-control mb-1" placeholder="Пароль"
                    required="">
 
             <label for="inputPasswordRegistration2" class="sr-only">Пароль еще раз</label>
-            <input type="password" id="inputPasswordRegistration2" class="form-control" placeholder="Пароль еще раз"
+            <input type="password" id="inputPasswordRegistration2" class="input-data input-data--password2 form-control" placeholder="Пароль еще раз"
                    required="">
 
-            <button class="btn btn-lg btn-primary btn-block mt-3">Создать</button>
-        </div>
+            <input type="submit" class="btn btn-lg btn-primary btn-block mt-3" value="Создать">
+        </form>
 
-    </form>
+    </div>
 
     <div class="container__chat">
         <div class="col-6">
             <div id="subscribe" class="mb-3"></div>
-            <form>
+            <form id="newmessage">
                 <textarea class="text-message col-12" type="text" name="message"></textarea>
-                <button id="newmessage" class="btn btn-lg btn-primary" type="button">Отправить</button>
+                <input  class="btn btn-lg btn-primary" type="submit" value="Отправить">
             </form>
         </div>
 
@@ -62,22 +63,22 @@
             <button class="btn btn-lg btn-secondary mb-3 btn--edit" >Редактировать профиль</button>
             <form id="tab-content-3" class="profile-edit">
                 <label for="inputEmailEdit" class="sr-only">Эл. почта</label>
-                <input type="email" id="inputEmailEdit" class="form-control mb-1" placeholder="Эл. почта"
+                <input type="email" id="inputEmailEdit" class="input-data input-data--email form-control mb-1" placeholder="Эл. почта"
                        required="" autofocus="">
 
                 <label for="inputLoginEdit" class="sr-only">Имя</label>
-                <input type="text" id="inputLoginEdit" class="form-control mb-1" placeholder="Имя" required=""
+                <input type="text" id="inputLoginEdit" class="input-data input-data--login form-control mb-1" placeholder="Имя" required=""
                        autofocus="">
 
-                <label for="inputPasswordEdit" class="sr-only">Пароль</label>
-                <input type="password" id="inputPasswordEdit" class="form-control mb-1" placeholder="Пароль"
+                <label for="inputPasswordEdit" class="sr-only">Новый пароль</label>
+                <input type="password" id="inputPasswordEdit" class="input-data input-data--password form-control mb-1" placeholder="Новый пароль"
                        required="">
 
-                <label for="inputPasswordEdit2" class="sr-only">Пароль еще раз</label>
-                <input type="password" id="inputPasswordEdit2" class="form-control" placeholder="Пароль еще раз"
+                <label for="inputPasswordEdit2" class="sr-only">Новый пароль еще раз</label>
+                <input type="password" id="inputPasswordEdit2" class="input-data input-data--password2 form-control" placeholder="Новый пароль еще раз"
                        required="">
 
-                <button class="btn btn-lg btn-primary btn-block mt-3 btn--save" type="button">Сохранить</button>
+                <input class="btn btn-lg btn-primary btn-block mt-3 btn--save" type="submit" value="Сохранить">
             </form>
         </div>
     </div>

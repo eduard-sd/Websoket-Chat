@@ -5,18 +5,16 @@ if (!window.WebSocket) {
 
 const containerChat = document.querySelector(".container__chat");
 const formSingIn = document.querySelector(".form-signin");
-const email = document.getElementById("inputEmailRegistration");
-const loginName = document.getElementById("inputLoginRegistration");
-const password = document.getElementById("inputPasswordRegistration");
-const password2 = document.getElementById("inputPasswordRegistration2");
-const inputFields = document.querySelectorAll('#tab-content-2 input');
+
+let authTab = document.querySelector('#tab-content-1');
+let regTab = document.querySelector('#tab-content-2');
+let updateTab = document.querySelector('#tab-content-3');
+const inputFields = document.querySelectorAll('.input-data');
 const profileEdit = document.querySelector('.profile-edit');
 
-inputFields.forEach(x => {
-  x.addEventListener('change', validate)
-});
 
-function validate() {
+
+function validate(form) {
   function invalid (target) {
     target.classList.remove('is-valid');
     target.classList.add('is-invalid');
@@ -30,51 +28,93 @@ function validate() {
     target.classList.remove('is-valid');
   }
 
-  if (password.value === password2.value &&
-      password.value.length > 3
+
+  if (form.password.value === form.password2.value &&
+      form.password.value.length > 3
   ) {
-    valid(password);
-    valid(password2);
-  } else if (password.value.length < 1  && password2.value.length < 1) {
-    empty(password);
-    empty(password2);
+    valid(form.password);
+    valid(form.password2);
+  } else if (form.password.value.length < 1  && form.password2.value.length < 1) {
+    empty(form.password);
+    empty(form.password2);
   } else {
-    invalid(password);
-    invalid(password2);
+    invalid(form.password);
+    invalid(form.password2);
   }
 
-  if (email.value.length > 5 && email.value.includes("@") === true) {
-    valid(email);
-  } else if (email.value.length < 1) {
-    empty(email);
+  if (form.email.value.length > 5 && form.email.value.includes("@") === true) {
+    valid(form.email);
+  } else if (form.email.value.length < 1) {
+    empty(form.email);
   } else {
-    invalid(email);
-  }
-
-
-  if(loginName.value.length > 1) {
-    valid(loginName);
-  } else if (loginName.value.length < 1) {
-    empty(loginName);
-  } else {
-    invalid(loginName);
+    invalid(form.email);
   }
 
 
-  if (password.value === password2.value &&
-      password.value.length > 3 &&
-      loginName.value.length > 1 &&
-      email.value.includes("@") === true
+  if(form.loginName.value.length > 1) {
+    valid(form.loginName);
+  } else if (form.loginName.value.length < 1) {
+    empty(form.loginName);
+  } else {
+    invalid(form.loginName);
+  }
+
+
+  if (form.password.value === form.password2.value &&
+      form.password.value.length > 3 &&
+      form.loginName.value.length > 1 &&
+      form.email.value.includes("@") === true
   ) {
     return true
   }
 }
+class Form {
+  constructor(form) {
+    this.email = form.querySelector('.input-data--email');
+    this.loginName = form.querySelector('.input-data--login');
+    this.password = form.querySelector('.input-data--password');
+    this.password2 = form.querySelector('.input-data--password2');
+    this.inputFields = form.querySelectorAll('.input-data');
+  }
+  getFields() {
+    return {
+      email: this.email,
+      loginName: this.loginName,
+      password: this.password,
+      password2: this.password2
+    };
+  }
+
+  setEmpty () {
+    this.inputFields.forEach(x => x.value = '');
+    validate(this.getFields())
+  }
+
+  init() {
+   this.inputFields.forEach(x => {
+     x.addEventListener('change', () => {
+       console.log(1)
+       validate(this.getFields())
+     });
+   });
+  }
+}
+
+
+let createData = new Form(regTab);
+createData.init(); //вешаем обработчик
+
+let editData = new Form(updateTab);
+editData.init(); //вешаем обработчик
+
+
 
 // создать подключение
 let socket = new WebSocket("ws://localhost:8081");
 
 //авторизация
-document.querySelector("#tab-content-1 > button").onclick = () => {
+authTab.onsubmit = (e) => {
+  e.preventDefault();
   let email = document.getElementById("inputEmail");
   let password = document.getElementById("inputPassword");
   let authorization = {
@@ -87,6 +127,45 @@ document.querySelector("#tab-content-1 > button").onclick = () => {
   socket.send(JSON.stringify(authorization));
 };
 
+//регистрация
+regTab.onsubmit = (e) => {
+  e.preventDefault();
+
+  if (validate(createData.getFields()) === true) {
+    let registration = {
+      type: "registration",
+      email: createData.email.value,
+      name: createData.loginName.value,
+      password: createData.password.value,
+      status: true
+    };
+    console.log(JSON.stringify(registration));
+    socket.send(JSON.stringify(registration));
+    // inputFields.forEach(x => x.value = '')
+    createData.setEmpty();
+  }
+};
+
+//редактирование аккаунта
+updateTab.onsubmit = (e) => {
+  e.preventDefault();
+  console.log(editData.getFields());
+
+  if (validate(editData.getFields())  === true) {
+    let profileEdit = {
+      type: "profile-edit",
+      email: editData.email.value,
+      name: editData.loginName.value,
+      // oldPassword: editData.password.value,
+      newPassword: editData.password.value,
+      status: true
+    };
+
+    socket.send(JSON.stringify(profileEdit));
+    // inputFields.forEach(x => x.value = '');
+    editData.setEmpty();
+  }
+};
 document.querySelector('.btn--exit').onclick = () => {
   // formSingIn.classList.add('form-signin--visible');
   // containerChat.classList.remove('container__chat--visible');
@@ -103,33 +182,17 @@ document.querySelector('.btn--exit').onclick = () => {
 };
 document.querySelector('.btn--edit').onclick = () => {
   profileEdit.classList.add('profile-edit--visible');
-  editBtn.classList.add('btn--invisible');
+  console.log(1);
 };
-document.querySelector('.btn--save').onclick = () => {
-  profileEdit.classList.remove('profile-edit--visible');
-  editBtn.classList.remove('btn--invisible');
-};
-
-//регистрация
-document.querySelector("#tab-content-2 button").onclick = () => {
-  if (validate() === true) {
-    let registration = {
-      type: "registration",
-      email: email.value,
-      name: loginName.value,
-      password: password.value,
-      status: true
-    };
-    console.log(JSON.stringify(registration));
-    socket.send(JSON.stringify(registration));
-    inputFields.forEach(x => x.value = '')
-    validate();
-  }
-};
+// document.querySelector('.btn--save').onclick = () => {
+//   profileEdit.classList.remove('profile-edit--visible');
+// };
 
 // отправить сообщение из формы
-document.querySelector("#newmessage").onclick = (e) => {
+document.querySelector("#newmessage").onsubmit = (e) => {
   e.preventDefault();
+  console.log(this);
+  let textBox = document.querySelector('#newmessage textarea');
   let chatMessage = {
       type: "text",
       text: document.querySelector('.text-message').value,//edit get element
@@ -138,6 +201,7 @@ document.querySelector("#newmessage").onclick = (e) => {
 
   console.log(JSON.stringify(chatMessage));
   socket.send(JSON.stringify(chatMessage));
+  textBox.value = '';
 };
 
 function formateDate (date) {
@@ -153,7 +217,7 @@ function formateDate (date) {
 
 // обработчик входящих сообщений
 socket.onmessage = function(event) {
-  console.log('browser socket.onmessage = ',event);
+  console.log('browser socket.onmessage = ', event);
   let data = JSON.parse(event.data);
 
   if (data.access === false) {
