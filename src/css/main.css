@@ -125,3 +125,87 @@
     display: flex;
     align-items: center;
 }
+
+
+.rooms,
+.contacts {
+    border: 1px solid black;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    max-height: 300px;
+}
+.room-card,
+.contact-card {
+    padding: 10px;
+}
+
+.room-card:hover,
+.contact-card:hover {
+    background: #cbc8c8;
+    cursor:pointer;
+}
+
+.room-card h5,
+.contact-card h5 {
+    margin: 0;
+}
+
+.scroll::-webkit-scrollbar {
+    width: 5px;
+}
+
+.scroll::-webkit-scrollbar-track {
+    background: #ddd;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    background: #666;
+}
+
+
+
+.room-card,
+.contact-card {
+    padding: 5px 10px;
+    position: relative;
+}
+
+.room-card_new-message-counter,
+.contact_new-message-counter {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    height: 15px;
+    width:  25px;
+    font-size: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.name {
+    position: relative;
+}
+
+.name--offline:before {
+    position: absolute;
+    content: '';
+    display: block;
+    border-radius: 25px;
+    height: 5px;
+    width: 5px;
+    left:-5px;
+    top: 0;
+    background: #afb2b5;
+}
+.name--offline.name--online:before {
+    position: absolute;
+    content: '';
+    display: block;
+    border-radius: 25px;
+    height: 5px;
+    width: 5px;
+    left:-5px;
+    top: 0;
+    background: #007bff;
+}

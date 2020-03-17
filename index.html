@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./src/css/main.css">
 
 </head>
-<body>
+<body class="scroll">
 <div class="container">
     <h1 class="text-center">Чат</h1>
     <div class="form-signin form-signin--visible">
@@ -51,13 +51,71 @@
 
     <div class="container__chat">
         <div class="col-6">
-            <div id="subscribe" class="mb-3"></div>
+            <div id="subscribe" class="mb-3 scroll"></div>
             <form id="newmessage">
                 <textarea class="text-message col-12" type="text" name="message"></textarea>
                 <input  class="btn btn-lg btn-primary" type="submit" value="Отправить">
             </form>
         </div>
-
+        <div class="d-flex flex-column col-3">
+            <h6>Переговорки</h6>
+            <div class="rooms scroll">
+                <div class="room-card">
+                    <h5 class="name">
+                        <span>Общий</span>
+                    </h5>
+                    <span class="room-card_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="room-card">
+                    <h5 class="name">
+                        <span>Общий</span>
+                    </h5>
+                    <span class="room-card_new-message-counter"></span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="room-card">
+                    <h5 class="name">
+                        <span>Общий</span>
+                    </h5>
+                    <span class="room-card_new-message-counter"></span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+            </div>
+            <h6>Контакты</h6>
+            <div class="contacts scroll">
+                <div class="contact-card">
+                    <h5 class="name name--offline name--online">Вася</h5>
+                    <span class="contact_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="contact-card">
+                    <h5 class="name name--offline name--online">Вася</h5>
+                    <span class="contact_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="contact-card">
+                    <h5 class="name name--offline name--online">Вася</h5>
+                    <span class="contact_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="contact-card">
+                    <h5 class="name name--offline name--online">Вася</h5>
+                    <span class="contact_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="contact-card">
+                    <h5 class="name name--offline name--online">Вася</h5>
+                    <span class="contact_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+                <div class="contact-card">
+                    <h5 class="name name--offline name--online">Вася</h5>
+                    <span class="contact_new-message-counter">256</span>
+                    <span class="last-message">Lorem ipsum dolor sit amet.</span>
+                </div>
+            </div>
+        </div>
         <div class="d-flex flex-column col-3">
             <button class="btn btn-lg btn-dark mb-3 btn--exit" >Выход</button>
             <button class="btn btn-lg btn-secondary mb-3 btn--edit" >Редактировать профиль</button>

@@ -7,9 +7,9 @@ const {Users, Blog, Tag} = require('./databaseConnectORM')
 // подписанные клиенты
 let subscribers = [];
 
-function makeData(registration, access, text, name, date) {
+function makeData(profile, access, text, name, date) {
     return {
-        registration, //'', created, already_exist
+        profile, //'', profile_created, profile_already-exist, profile_updated, error_password, error_new-data-exist
         access, // false, true
         message: {
             name,
@@ -25,6 +25,7 @@ let webSocketServer = new WebSocket.Server({port: 8081});
 
 webSocketServer.on('connection', function (ws) {
     function getProfileIndex(idOrWs) {
+
         for (let i = 0; i < subscribers.length; i++) {
             if (subscribers[i].ws === idOrWs) {
                 return i;
@@ -34,45 +35,46 @@ webSocketServer.on('connection', function (ws) {
         }
     }
 
-    function disconect(index) {
-        let name = subscribers[index].resName;
-        console.log('соединение закрыто ' + subscribers[index].resId);
-        delete subscribers[index];
+    function disconnect(index) {
+        let leaverName = subscribers[index].resName;
+        let leaverId = subscribers[index].resId;
+
+//вынести в функцию--
+        let leaverData = makeData(
+            'reload',
+            '',
+            ''
+        );
+        console.log(JSON.stringify(leaverData));
+        ws.send(JSON.stringify(leaverData));
+//вынести в функцию--
+
+        console.log('соединение закрыто ' + leaverId);
+        subscribers.splice(index,1);
         let data = makeData(
             '',
             '',
-            name + " покинул чат",
-            name,
+            leaverName + " покинул чат",
+            leaverName,
             new Date()
         );
         subscribers.forEach(x => x.ws.send(JSON.stringify(data)));
     }
 
     ws.on('close', function () {
-        disconect()
     });
-
-    // ws.on('open', function(message) {
-    //   console.log(message.data);
-    //   console.log('получено сообщение ' + message);
-    //
-    //
-    //   //разослать по клиентам
-    //   for(let key in subscribers) {
-    //     subscribers[key].send(message);
-    //   }
-    // });
 
     ws.on('message', function (message) {
         console.log('получено сообщение ' + message);
         let params = JSON.parse(message);
+
         if (params.type === "authorization") {
             // проверка есть ли пользователь в базе
 
             Users.findAll({
                 where: {
-                    email: `${params.email}`,
-                    password: `${params.password}`
+                    email: params.email,
+                    password: params.password
                 }
             }).then(res => {
                 if (res.length) {
@@ -109,15 +111,15 @@ webSocketServer.on('connection', function (ws) {
         } else if (params.type === "registration") {
 
             Users.create({
-                email: `${params.email}`,
-                password: `${params.password}`,
-                name: `${params.name}`,
-                status: `${params.status}`
+                email: params.email,
+                password: params.password,
+                name: params.name,
+                status: params.status
             }).then(res => {
                 if (res) {
 
                     let data = makeData(
-                        'created',
+                        'profile_created',
                         '',
                         ''
                     );
@@ -126,9 +128,8 @@ webSocketServer.on('connection', function (ws) {
                 }
 
             }).catch(() => {
-
                 let data = makeData(
-                    'already_exist',
+                    'profile_already-exist',
                     '',
                     ''
                 );
@@ -139,55 +140,48 @@ webSocketServer.on('connection', function (ws) {
         } else if (params.type === "profile-edit") {
             let index = getProfileIndex(ws);
 
-            Users.update({
-                where: {
-                    id: `${subscribers[index].id}`,
+            Users.update(
+                {
+                    email: params.email,
+                    password: params.newPassword,
+                    name: params.name,
+                    status: params.status
+                },
+                {
+                    where: {
+                        id: subscribers[index].resId
+                    }
                 }
-            }).then(res => {
+            ).then(res => {
                 if (res.length) {
-                    let resId = res[0].dataValues.id;
-                    let resName = res[0].dataValues.name;
-                    subscribers.push({
-                        resId,
-                        ws,
-                        resName
-                    });
-
-                    let index = getProfileIndex(ws);
                     let data = makeData(
+                        'profile_updated',
                         '',
-                        true,
-                        '',
-                        subscribers[index].resName,
-                        new Date()
-                    );
-                    console.log(JSON.stringify(data));
-                    ws.send(JSON.stringify(data));
-                } else {
-
-                    let data = makeData(
-                        '',
-                        false,
                         ''
                     );
                     console.log(JSON.stringify(data));
                     ws.send(JSON.stringify(data));
                 }
+            }).catch((e) => {
+                let data = makeData(
+                    'error_new-data-exist',
+                    '',
+                    ''
+                );
+                console.log(JSON.stringify(data));
+                ws.send(JSON.stringify(data));
             })
-
         } else if (params.type === "exit") {
-            let index = getProfileIndex(ws)
+            let index = getProfileIndex(ws);
             let id = subscribers[index].resId;
             Users.update({
-                status: `${params.status}`
+                status: params.status
             }, {
                 where: {id}
             }).then(res => {
-                console.log('result', res);
-                disconect(index);
+                disconnect(index);
             }).catch((e) => {
-                console.log('error', e);
-                disconect(index);
+                disconnect(index);
             });
         } else if (params.type === "text") {
             let index = getProfileIndex(ws);

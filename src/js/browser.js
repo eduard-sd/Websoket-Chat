@@ -68,6 +68,7 @@ function validate(form) {
     return true
   }
 }
+
 class Form {
   constructor(form) {
     this.email = form.querySelector('.input-data--email');
@@ -99,7 +100,6 @@ class Form {
    });
   }
 }
-
 
 let createData = new Form(regTab);
 createData.init(); //вешаем обработчик
@@ -176,17 +176,11 @@ document.querySelector('.btn--exit').onclick = () => {
   };
   console.log(JSON.stringify(exit));
   socket.send(JSON.stringify(exit));
-
-  window.location.reload()//поправить
-
 };
 document.querySelector('.btn--edit').onclick = () => {
-  profileEdit.classList.add('profile-edit--visible');
-  console.log(1);
+  profileEdit.classList.contains('profile-edit--visible') ? profileEdit.classList.remove('profile-edit--visible') : profileEdit.classList.add('profile-edit--visible');
+  editData.setEmpty();
 };
-// document.querySelector('.btn--save').onclick = () => {
-//   profileEdit.classList.remove('profile-edit--visible');
-// };
 
 // отправить сообщение из формы
 document.querySelector("#newmessage").onsubmit = (e) => {
@@ -215,7 +209,7 @@ function formateDate (date) {
   return(`${day}.${month}.${year} - ${hour}:${minutes}`);
 }
 
-// обработчик входящих сообщений
+// обработчик входящих данных
 socket.onmessage = function(event) {
   console.log('browser socket.onmessage = ', event);
   let data = JSON.parse(event.data);
@@ -227,20 +221,33 @@ socket.onmessage = function(event) {
     formSingIn.classList.remove('form-signin--visible');
     containerChat.classList.add('container__chat--visible');
 
-  } else if (data.registration === 'created') {
+  } else if (data.profile === 'profile_created') {
     alert("Аккаунт создан");
     document.getElementById('option1').checked = true;
 
-  } else if (data.registration === 'already_exist') {
+  } else if (data.profile === 'profile_already-exist') {
     alert("Аккаунт уже существует");
     document.getElementById('option1').checked = true;
 
-  } else if (data.message.text.length > 0) {
+  } else if (data.profile === 'profile_updated') {
+    profileEdit.classList.remove('profile-edit--visible');
+    alert("Данные обновлены");
+
+  } else if (data.profile === 'error_password') {
+    alert("Ошибка пароля");
+
+  } else if (data.profile === 'error_new-data-exist') {
+    alert("Имя или почта уже занято");
+
+  }  else if (data.profile === 'reload') {
+    window.location.reload()//поправить
+
+  } else if (data.message.text.length > 0 && data.profile.length === 0) {
     showMessage(data.message);
   }
 };
 
-// показать сообщение в div#subscribe
+// показать сообщение в div
 function showMessage(message) {
   let date = formateDate(message.date);
   let element = `<div class="chat-box">
